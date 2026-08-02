@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, ListFilter as Filter } from 'lucide-react';
 import { Input } from '../ui/Input';
 
 interface FileFiltersProps {
@@ -112,6 +112,8 @@ export function FileFilters({
           <option value="size_large">File Size (Largest)</option>
           <option value="size_small">File Size (Smallest)</option>
           <option value="file_type">File Type</option>
+          <option value="most_viewed">Most Viewed</option>
+          <option value="most_downloaded">Most Downloaded</option>
         </select>
       </div>
     </div>

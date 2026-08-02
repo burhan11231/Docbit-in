@@ -10,6 +10,7 @@ import { WorkspaceList } from './pages/workspaces/WorkspaceList';
 import { WorkspaceDetail } from './pages/workspaces/WorkspaceDetail';
 import { ProjectList } from './pages/projects/ProjectList';
 import { ProjectDetail } from './pages/projects/ProjectDetail';
+import { AccessDenied } from './pages/projects/AccessDenied';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { Billing } from './pages/billing/Billing';
 import { SettingsLayout } from './pages/settings/SettingsLayout';
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/workspaces/:workspaceId" element={<WorkspaceDetail />} />
             <Route path="/projects" element={<ProjectList />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/billing" element={<Billing />} />

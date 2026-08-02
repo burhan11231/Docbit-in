@@ -1,5 +1,7 @@
--- DocBit PostgreSQL Schema for Supabase
--- This schema represents the complete Phase 1 schema with collaboration features
+-- DocBit Full Schema - aligned with backend code expectations
+
+-- Enable extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. PROFILES
 CREATE TABLE profiles (
@@ -77,10 +79,20 @@ CREATE TABLE project_members (
 
 -- Editor permissions (granular permissions for editors)
 CREATE TYPE editor_permission AS ENUM (
-    'full_edit', 'upload_files', 'replace_files', 'delete_files',
-    'rename_files', 'move_files', 'organize_folders', 'edit_metadata',
-    'manage_uploads', 'manage_members', 'manage_sharing', 'manage_analytics',
-    'manage_specific_folders', 'manage_selected_file_types'
+    'full_edit',
+    'upload_files',
+    'replace_files',
+    'delete_files',
+    'rename_files',
+    'move_files',
+    'organize_folders',
+    'edit_metadata',
+    'manage_uploads',
+    'manage_members',
+    'manage_sharing',
+    'manage_analytics',
+    'manage_specific_folders',
+    'manage_selected_file_types'
 );
 
 CREATE TABLE project_member_permissions (
@@ -159,5 +171,44 @@ CREATE TABLE activity_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Note: RLS policies are applied via the Supabase migration system.
--- See the applied migration for the full RLS policy set.
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workspaces ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workspace_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_member_permissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_invitations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE folders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE files ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shares ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies: allow authenticated users access (backend uses service role key which bypasses RLS)
+CREATE POLICY "profiles_select" ON profiles FOR SELECT TO authenticated USING (true);
+CREATE POLICY "profiles_update" ON profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
+
+CREATE POLICY "workspaces_all" ON workspaces FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "workspace_members_all" ON workspace_members FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "projects_all" ON projects FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "project_members_all" ON project_members FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "project_member_permissions_all" ON project_member_permissions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "project_invitations_all" ON project_invitations FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "folders_all" ON folders FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "files_all" ON files FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "shares_all" ON shares FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "activity_logs_all" ON activity_logs FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "subscriptions_all" ON subscriptions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Indexes for performance
+CREATE INDEX idx_workspaces_owner ON workspaces(owner_id);
+CREATE INDEX idx_workspace_members_user ON workspace_members(user_id);
+CREATE INDEX idx_projects_workspace ON projects(workspace_id);
+CREATE INDEX idx_project_members_project ON project_members(project_id);
+CREATE INDEX idx_project_members_user ON project_members(user_id);
+CREATE INDEX idx_files_project ON files(project_id);
+CREATE INDEX idx_activity_logs_project ON activity_logs(project_id);
+CREATE INDEX idx_activity_logs_user ON activity_logs(user_id);
+CREATE INDEX idx_project_invitations_project ON project_invitations(project_id);
+CREATE INDEX idx_project_invitations_email ON project_invitations(invitee_email);
