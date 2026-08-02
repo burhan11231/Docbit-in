@@ -26,10 +26,11 @@ router.post("/register", async (req, res) => {
     if (error) throw error;
     
     if (data.user) {
-      await supabaseService.from('profiles').insert({
+      await supabaseService.from('profiles').upsert({
         id: data.user.id,
+        email,
         full_name: full_name
-      });
+      }, { onConflict: 'id' });
     }
 
     res.json({ success: true, user: data.user });
@@ -60,6 +61,7 @@ router.post("/login", async (req, res) => {
       if (!profile) {
         await supabaseService.from('profiles').insert({
           id: data.user.id,
+          email,
           full_name: data.user.user_metadata?.full_name || email.split('@')[0]
         });
       }

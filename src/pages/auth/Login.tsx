@@ -48,6 +48,8 @@ export function Login() {
           <Input 
             label="Email address"
             type="email" 
+            name="email"
+            autoComplete="email"
             placeholder="name@company.com" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -57,6 +59,8 @@ export function Login() {
             <Input 
               label="Password"
               type="password" 
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

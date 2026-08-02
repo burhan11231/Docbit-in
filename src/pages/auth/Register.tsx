@@ -47,6 +47,8 @@ export function Register() {
           <Input 
             label="Full Name"
             type="text" 
+            name="name"
+            autoComplete="name"
             placeholder="John Doe" 
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -55,6 +57,8 @@ export function Register() {
           <Input 
             label="Email address"
             type="email" 
+            name="email"
+            autoComplete="email"
             placeholder="name@company.com" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -63,6 +67,8 @@ export function Register() {
           <Input 
             label="Password"
             type="password" 
+            name="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
