@@ -35,7 +35,16 @@ router.post("/register", async (req, res) => {
 
     res.json({ success: true, user: data.user });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    const msg = err.message || 'Registration failed';
+    if (msg.includes('already') || msg.toLowerCase().includes('registered')) {
+      res.status(409).json({ error: 'An account with this email already exists.' });
+    } else if (msg.toLowerCase().includes('password')) {
+      res.status(400).json({ error: 'Password is too weak. Use at least 6 characters.' });
+    } else if (msg.toLowerCase().includes('email')) {
+      res.status(400).json({ error: 'Please enter a valid email address.' });
+    } else {
+      res.status(400).json({ error: msg });
+    }
   }
 });
 

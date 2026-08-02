@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../lib/api';
 
 export function Register() {
+  const { login } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,15 +18,40 @@ export function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const response = await api.auth.register({ email, password, full_name: name });
       if (response.success) {
+        try {
+          const loginResponse = await api.auth.login({ email, password });
+          if (loginResponse.success && loginResponse.session) {
+            login(loginResponse.session.access_token, loginResponse.session.user);
+            navigate('/');
+            return;
+          }
+        } catch {
+          // Auto-login failed, fall back to manual login
+        }
         navigate('/login', { state: { message: 'Registration successful. Please log in.' } });
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to register');
+      const msg = err.message || 'Failed to register';
+      if (msg.includes('already') || msg.includes('registered')) {
+        setError('An account with this email already exists. Please log in instead.');
+      } else if (msg.includes('password')) {
+        setError('Password is too weak. Use at least 6 characters.');
+      } else if (msg.includes('email')) {
+        setError('Please enter a valid email address.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
     }
