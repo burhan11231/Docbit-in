@@ -25,6 +25,11 @@ async function startServer() {
     res.json({ status: "ok", timestamp: new Date().toISOString(), service: "DocBit Backend Phase 1" });
   });
 
+  // Catch unmatched API routes before Vite middleware so they return JSON, not HTML
+  app.use("/api/*", (req, res) => {
+    res.status(404).json({ error: "Not found" });
+  });
+
   // Vite middleware for development (serves React frontend later)
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -36,6 +41,9 @@ async function startServer() {
   } else {
     const distPath = path.join(__dirname, 'dist');
     app.use(express.static(distPath));
+    app.get('/api/*', (req, res) => {
+      res.status(404).json({ error: 'Not found' });
+    });
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });

@@ -13,7 +13,18 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
     headers,
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type') || '';
+  let data: any;
+  if (contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(text || `Request failed with status ${response.status}`);
+    }
+    return { success: true };
+  }
+
   if (!response.ok) {
     if (response.status === 401) {
       localStorage.removeItem('token');
@@ -57,7 +68,17 @@ export const api = {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
-      }).then(res => res.json());
+      }).then(async res => {
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          return res.json();
+        }
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || `Upload failed with status ${res.status}`);
+        }
+        return { success: true };
+      });
     },
     update: (id: string, data: any) => fetchApi(`/files/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => fetchApi(`/files/${id}`, { method: 'DELETE' }),
