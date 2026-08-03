@@ -24,7 +24,7 @@ async function startServer() {
   // Vite middleware for development (serves React frontend later)
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      root: path.resolve(__dirname),
+      root: process.cwd(),
       server: { middlewareMode: true },
       appType: "spa",
     });
